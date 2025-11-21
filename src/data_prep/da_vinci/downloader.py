@@ -22,7 +22,7 @@ def sanitize_filename(filename):
     return filename
 
 
-def download_images(image_info, output_dir='data'):
+def download_images(image_info, output_dir='data/da-vinci-works'):
     """
     Download all images from the image_info dictionary and create a manifest.
     
@@ -34,8 +34,8 @@ def download_images(image_info, output_dir='data'):
         list: Manifest data with metadata for each image
     """
     # Get repo root (parent of src/)
-    # __file__ is in src/data_prep/, so go up 3 levels to reach repo root
-    repo_root = Path(__file__).parent.parent.parent
+    # __file__ is in src/data_prep/da_vinci/, so go up 4 levels to reach repo root
+    repo_root = Path(__file__).parent.parent.parent.parent
     data_dir = repo_root / output_dir
     
     # Create data directory if it doesn't exist
@@ -115,18 +115,20 @@ def download_images(image_info, output_dir='data'):
     return manifest
 
 
-def save_manifest(manifest, output_file='manifest.json'):
+def save_manifest(manifest, output_dir='data/da-vinci-works', output_file='manifest.json'):
     """
-    Save the manifest to a JSON file.
+    Save the manifest to a JSON file in the data directory.
     
     Args:
         manifest: List of manifest entries
-        output_file: Filename for the manifest (relative to repo root)
+        output_dir: Directory to save manifest (relative to repo root)
+        output_file: Filename for the manifest
     """
     # Get repo root (parent of src/)
-    # __file__ is in src/data_prep/, so go up 3 levels to reach repo root
-    repo_root = Path(__file__).parent.parent.parent
-    manifest_path = repo_root / output_file
+    # __file__ is in src/data_prep/da_vinci/, so go up 4 levels to reach repo root
+    repo_root = Path(__file__).parent.parent.parent.parent
+    data_dir = repo_root / output_dir
+    manifest_path = data_dir / output_file
     
     with open(manifest_path, 'w', encoding='utf-8') as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)

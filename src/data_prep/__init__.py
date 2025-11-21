@@ -1,18 +1,20 @@
 """
-Data preparation modules for Leonardo da Vinci artwork collection.
+Data preparation modules for artwork datasets.
 
-This package handles:
-- scraper: Web scraping artwork data from leonardoda-vinci.org
-- downloader: Image downloading and manifest creation
+This package contains:
+- da_vinci: Leonardo da Vinci artwork from leonardoda-vinci.org
+- met_museum: Metropolitan Museum of Art Open Access dataset
 """
 
-from .scraper import extract_image_data
-from .downloader import download_images, save_manifest, sanitize_filename
+# Re-export for backward compatibility and convenience
+from .da_vinci import extract_image_data, download_images, save_manifest, sanitize_filename
+from .met_museum import download_met_dataset
 
 __all__ = [
     'extract_image_data',
-    'download_images',
+    'download_images', 
     'save_manifest',
-    'sanitize_filename'
+    'sanitize_filename',
+    'download_met_dataset'
 ]
 
