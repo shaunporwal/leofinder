@@ -1,8 +1,6 @@
-import os
 import json
 import requests
 from pathlib import Path
-from scraper import extract_image_data
 
 
 def sanitize_filename(filename):
@@ -36,7 +34,8 @@ def download_images(image_info, output_dir='data'):
         list: Manifest data with metadata for each image
     """
     # Get repo root (parent of src/)
-    repo_root = Path(__file__).parent.parent
+    # __file__ is in src/data_prep/, so go up 3 levels to reach repo root
+    repo_root = Path(__file__).parent.parent.parent
     data_dir = repo_root / output_dir
     
     # Create data directory if it doesn't exist
@@ -125,7 +124,8 @@ def save_manifest(manifest, output_file='manifest.json'):
         output_file: Filename for the manifest (relative to repo root)
     """
     # Get repo root (parent of src/)
-    repo_root = Path(__file__).parent.parent
+    # __file__ is in src/data_prep/, so go up 3 levels to reach repo root
+    repo_root = Path(__file__).parent.parent.parent
     manifest_path = repo_root / output_file
     
     with open(manifest_path, 'w', encoding='utf-8') as f:
@@ -134,19 +134,3 @@ def save_manifest(manifest, output_file='manifest.json'):
     print(f"\n✓ Manifest saved to: {manifest_path}")
     print(f"  Total entries: {len(manifest)}")
 
-
-if __name__ == "__main__":
-    print("Starting to extract images from all 4 pages...")
-    print("=" * 60)
-    
-    image_info = extract_image_data()
-    
-    print("\n" + "=" * 60)
-    print(f"Total artworks found: {len(image_info)}")
-    print("=" * 60)
-    
-    # Download all images and get manifest data
-    manifest = download_images(image_info)
-    
-    # Save manifest to JSON file
-    save_manifest(manifest)
