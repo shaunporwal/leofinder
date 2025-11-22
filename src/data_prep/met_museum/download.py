@@ -1,10 +1,11 @@
 """
 Download the Metropolitan Museum of Art Open Access dataset from Kaggle.
 
-This script downloads the Met Museum dataset and organizes it in the data directory.
+This script downloads the Met Museum dataset, converts to parquet, and organizes it in the data directory.
 """
 
 import kagglehub
+import pandas as pd
 import shutil
 from pathlib import Path
 
@@ -33,22 +34,43 @@ def download_met_dataset():
     # Create target directory if it doesn't exist
     target_dir.mkdir(parents=True, exist_ok=True)
     
-    # Copy files from Kaggle cache to our data directory
+    # Copy and convert files from Kaggle cache to our data directory
     kaggle_path_obj = Path(kaggle_path)
     
-    print(f"\nCopying files to: {target_dir}")
+    print(f"\nProcessing files to: {target_dir}")
     print("=" * 60)
     
-    files_copied = 0
+    files_processed = 0
     for file in kaggle_path_obj.iterdir():
         if file.is_file():
-            target_file = target_dir / file.name
-            shutil.copy2(file, target_file)
-            print(f"Copied: {file.name}")
-            files_copied += 1
+            if file.suffix == '.csv':
+                # Convert CSV to Parquet
+                print(f"Converting {file.name} to parquet...")
+                # Read CSV with low_memory=False to handle mixed types
+                df = pd.read_csv(file, low_memory=False)
+                
+                # Convert all columns to string to avoid type issues, then back to appropriate types
+                # This handles mixed types gracefully
+                for col in df.columns:
+                    if df[col].dtype == 'object':
+                        # Keep as string (will be stored efficiently in parquet)
+                        df[col] = df[col].astype(str).replace('nan', None)
+                
+                parquet_file = target_dir / f"{file.stem}.parquet"
+                df.to_parquet(parquet_file, index=False, engine='pyarrow')
+                print(f"✓ Converted: {file.name} -> {parquet_file.name}")
+                print(f"  Rows: {len(df):,}, Columns: {len(df.columns)}")
+                files_processed += 1
+            else:
+                # Copy non-CSV files as-is
+                target_file = target_dir / file.name
+                shutil.copy2(file, target_file)
+                print(f"Copied: {file.name}")
+                files_processed += 1
     
     print("=" * 60)
-    print(f"✓ Successfully copied {files_copied} files to {target_dir}")
+    print(f"✓ Successfully processed {files_processed} files to {target_dir}")
+    print(f"  Format: Parquet")
     
     return target_dir
 

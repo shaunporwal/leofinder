@@ -1,4 +1,4 @@
-import json
+import pandas as pd
 import requests
 from pathlib import Path
 
@@ -115,9 +115,9 @@ def download_images(image_info, output_dir='data/da-vinci-works'):
     return manifest
 
 
-def save_manifest(manifest, output_dir='data/da-vinci-works', output_file='manifest.json'):
+def save_manifest(manifest, output_dir='data/da-vinci-works', output_file='manifest.parquet'):
     """
-    Save the manifest to a JSON file in the data directory.
+    Save the manifest to a parquet file in the data directory.
     
     Args:
         manifest: List of manifest entries
@@ -130,9 +130,11 @@ def save_manifest(manifest, output_dir='data/da-vinci-works', output_file='manif
     data_dir = repo_root / output_dir
     manifest_path = data_dir / output_file
     
-    with open(manifest_path, 'w', encoding='utf-8') as f:
-        json.dump(manifest, f, indent=2, ensure_ascii=False)
+    # Convert manifest list to DataFrame and save as parquet
+    df = pd.DataFrame(manifest)
+    df.to_parquet(manifest_path, index=False, engine='pyarrow')
     
     print(f"\n✓ Manifest saved to: {manifest_path}")
     print(f"  Total entries: {len(manifest)}")
+    print(f"  Format: Parquet")
 
